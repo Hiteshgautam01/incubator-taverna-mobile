@@ -203,6 +203,10 @@ public class FavouriteWorkflowsFragment extends Fragment
         mFavouriteWorkflowsPresenter.attachSearchHandler(searchView);
     }
 
+    /*
+        This Method is used to perform the search for
+        finding workflow in favourite workflow activity.
+     */
     @Override
     public void performSearch(String search) {
         mSearchFavouriteWorkflowAdapter = new FavouriteWorkflowsAdapter(new ArrayList<Workflow>(),
