@@ -18,14 +18,20 @@
  */
 package org.apache.taverna.mobile.ui;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.request.animation.GlideAnimation;
+import com.bumptech.glide.request.target.SimpleTarget;
+
 import org.apache.taverna.mobile.R;
 import org.apache.taverna.mobile.data.DataManager;
-import org.apache.taverna.mobile.data.local.PreferencesHelper;
 import org.apache.taverna.mobile.ui.anouncements.AnnouncementFragment;
 import org.apache.taverna.mobile.ui.favouriteworkflow.FavouriteWorkflowsFragment;
 import org.apache.taverna.mobile.ui.login.LoginActivity;
 import org.apache.taverna.mobile.ui.myworkflows.MyWorkflowFragment;
 import org.apache.taverna.mobile.ui.usage.UsageActivity;
+import org.apache.taverna.mobile.ui.userprofile.UserProfileActivity;
 import org.apache.taverna.mobile.ui.workflow.WorkflowFragment;
 import org.apache.taverna.mobile.utils.ActivityUtils;
 
@@ -43,13 +49,23 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.webkit.WebView;
 import android.widget.TableLayout;
+import android.widget.TextView;
+
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
+import de.hdodenhof.circleimageview.CircleImageView;
+
+import static com.raizlabs.android.dbflow.config.FlowManager.getContext;
 
 public class DashboardActivity extends AppCompatActivity {
+
+    @Inject DataManager dataManager;
 
     @BindView(R.id.nav_view)
     NavigationView navigationView;
@@ -60,9 +76,7 @@ public class DashboardActivity extends AppCompatActivity {
     @BindView(R.id.toolbar)
     Toolbar toolbar;
 
-
     private Dialog dialog;
-    private DataManager dataManager;
     private Fragment fragment;
     private MenuItem item;
 
@@ -77,7 +91,6 @@ public class DashboardActivity extends AppCompatActivity {
         setupDrawerContent(navigationView);
 
         dialog = new Dialog(this);
-
 
         setSupportActionBar(toolbar);
         final ActionBar ab = getSupportActionBar();
@@ -99,7 +112,7 @@ public class DashboardActivity extends AppCompatActivity {
             navigationView.setCheckedItem(R.id.nav_workflows);
         }
 
-        dataManager = new DataManager(new PreferencesHelper(this));
+        setNavHeader();
     }
 
 
@@ -264,11 +277,48 @@ public class DashboardActivity extends AppCompatActivity {
     private void signOut() {
         mDrawerLayout.closeDrawers();
         dataManager.getPreferencesHelper().clear();
-        dataManager.mDBHelper.clearFavouriteWorkflow();
+        dataManager.getDBHelper().clearFavouriteWorkflow();
 
         startActivity(new Intent(getApplicationContext(),
                 LoginActivity.class));
         finish();
+    }
+
+    private void setNavHeader() {
+
+        View headerView =  navigationView.getHeaderView(0);
+        String avatarUrl = dataManager.getPreferencesHelper().getUserAvatarUrl();
+        final CircleImageView navUserAvatar = headerView.findViewById(R.id.nav_user_avatar);
+
+        Glide.with(getContext())
+                .load(avatarUrl)
+                .diskCacheStrategy(DiskCacheStrategy.SOURCE)
+                .placeholder(R.drawable.ic_account_circle_black_24dp)
+                .error(R.drawable.ic_account_circle_black_24dp)
+                .into(new SimpleTarget<GlideDrawable>() {
+                    @Override
+                    public void onResourceReady(GlideDrawable resource, GlideAnimation<?
+                            super GlideDrawable> glideAnimation) {
+                        navUserAvatar.setImageDrawable(resource);
+                    }
+                });
+
+        navUserAvatar.setOnClickListener(new View.OnClickListener() {
+            @OnClick
+            public void onClick(View v) {
+                Intent intent = new Intent(DashboardActivity.this, UserProfileActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        String userName = dataManager.getPreferencesHelper().getUserName();
+        TextView navUserName = headerView.findViewById(R.id.nav_user_name);
+        navUserName.setText(userName);
+
+        String userEmail = dataManager.getPreferencesHelper().getUserEmail();
+        TextView navUserEmail = headerView.findViewById(R.id.nav_user_email);
+        navUserEmail.setText(userEmail);
+
     }
 
 
