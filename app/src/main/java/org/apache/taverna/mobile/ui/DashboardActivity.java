@@ -27,6 +27,7 @@ import com.bumptech.glide.request.target.SimpleTarget;
 import org.apache.taverna.mobile.R;
 import org.apache.taverna.mobile.data.DataManager;
 import org.apache.taverna.mobile.ui.anouncements.AnnouncementFragment;
+import org.apache.taverna.mobile.ui.base.BaseActivity;
 import org.apache.taverna.mobile.ui.favouriteworkflow.FavouriteWorkflowsFragment;
 import org.apache.taverna.mobile.ui.login.LoginActivity;
 import org.apache.taverna.mobile.ui.myworkflows.MyWorkflowFragment;
@@ -63,7 +64,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 import static com.raizlabs.android.dbflow.config.FlowManager.getContext;
 
-public class DashboardActivity extends AppCompatActivity {
+public class DashboardActivity extends BaseActivity {
 
     @Inject DataManager dataManager;
 
@@ -83,13 +84,10 @@ public class DashboardActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_dashboard_main);
-
+        getActivityComponent().inject(this);
         ButterKnife.bind(this);
-
         setupDrawerContent(navigationView);
-
         dialog = new Dialog(this);
 
         setSupportActionBar(toolbar);
@@ -98,7 +96,6 @@ public class DashboardActivity extends AppCompatActivity {
             ab.setHomeAsUpIndicator(R.drawable.ic_menu);
             ab.setDisplayHomeAsUpEnabled(true);
         }
-
 
         /**
          * Setting the Fragment in FrameLayout
@@ -114,7 +111,6 @@ public class DashboardActivity extends AppCompatActivity {
 
         setNavHeader();
     }
-
 
     /**
      * @param navigationView Design Support NavigationView  OnClick Listener Event
