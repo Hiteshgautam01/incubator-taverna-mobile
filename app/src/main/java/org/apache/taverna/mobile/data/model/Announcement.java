@@ -88,6 +88,7 @@ public class Announcement implements Parcelable {
     }
 
     public Announcement() {
+
     }
 
     protected Announcement(Parcel in) {
